@@ -17,31 +17,36 @@ library(ProjectTemplate)
 load.project()
 ```
 
-# Business Understanding
-## 1.1 Backgroud
+## Business Understanding
 Online learning is one of the learning method that popular nowadays due to their accessibility and flexibility. However, most of students un-enroll the course after a few day or some of them un-enroll right after start the first section which is the primary problem of the online learning. Therefore, one of the challenge for online lesson provider is how to reduce the number of un-enrollment student.
 
-## 1.2 Business objectives and success criteria
+### 1.1 Business objectives and success criteria
 The objective of this report is to analyse the factors contributing to student withdrawal in order to gain insights to understand the issues and identify strategies for improving the course. The analysis will cover the reasons for student withdrawal, the progression of course improvements over time, and potential enhancements for future course.
 
-## 1.3 Inventory of resources
+
+### 1.2 Requirement, assumption, and constrains
 The data set in this analysis come from the “Cyber Security: Safety At Home, Online, and in Life” course made by `Newcastle University` which public and collect the data through `FutureLearn`, virtual learning provider. The un-enrollment survey which include the information about reason of un-enrollment, withdrawal dates and learning hours are the primary information that used for the analysis.
 
-## 1.4 Requirement, assumption, and constrains
 R programming language is a tool that used to analyse and create this report. The students withdrawal survey is expected to identify the issues of course and address the course improvement method. However, some survey responses may be incomplete, as some question in the survey is compulsory. Consequently, the analysis results may not represent the entire student population.
 
-## 1.5 Risk and contingencies
+### 1.3 Risk and contingencies
 As student survey is the primary source that used for analysis, which relies on user-provided input. Consequently, it might contain missing response in some question that might effect to the analysis result. Therefore, the data set will be cleaned and selected the relevant responses for analysis, depending on the specific business question being addressed.
 
-## 1.6 Terminology
-....TBC
+## Data Understanding
+### 2.1 Initial data collection report
+There are seven different runs of the online course, resulting in seven distinct sets of survey responses. The types of survey responses vary across each run. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also logged and included in the data set. However, some of the response files are empty. The details of the files of each runs are provided in the table below.
 
+| No. Run | Archetype | Enrollment | Leave | Quiz | Activity | Team | Video | Sentiment
+|:-------:|:---------:|:----------:|:-----:|:----------:|:----:|:--------:|:---------:|:-------:|
+| 1 | x | o | x | o | o | x | x | x
+| 2 | x | o | x | o | o | o | x | x
+| 3 | o | o | x | o | o | o | o | x
+| 4 | o | o | o | o | o | o | o | x
+| 5 | o | o | o | o | o | o | o | o
+| 6 | o | o | o | o | o | o | o | o
+| 7 | o | o | o | o | o | o | o | o
 
-
-
-
-
-
+### 2.2 Data description report
 
 
 
