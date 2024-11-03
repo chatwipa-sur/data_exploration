@@ -33,11 +33,14 @@ R programming language is a tool that used to analyse and create this report. Th
 As student survey is the primary source that used for analysis, which relies on user-provided input. Consequently, it might contain missing response in some question that might effect to the analysis result. Therefore, the data set will be cleaned and selected the relevant responses for analysis, depending on the specific business question being addressed.
 
 ## Data Understanding
-### 2.1 Initial data collection report
-There are seven different runs of the online course, resulting in seven distinct sets of survey responses. The types of survey responses vary across each run. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also logged and included in the data set. However, some of the response files are empty. The details of the files of each runs are provided in the table below.
+### 2.1 Initial data collection
+There are seven different runs of the online course, resulting in seven distinct sets of survey responses. The types of survey responses vary across each run. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also recorded and included in the data set. 
 
-| No. Run | Archetype | Enrollment | Leave | Quiz | Activity | Team | Video | Sentiment
-|:-------:|:---------:|:----------:|:-----:|:----------:|:----:|:--------:|:---------:|:-------:|
+### 2.2 Data exploration
+However, some of the response files are empty. The details of empty files of each runs are provided in the table below, where "x" indicates an empty file and "o" indicates a present file.
+
+| No. Run | Archetype | Enrollment | Leave | Quiz | Activity | Team | Video | Sentiment |
+|:-------:|:---------:|:----------:|:-----:|:----:|:--------:|:----:|:-----:|:---------:|
 | 1 | x | o | x | o | o | x | x | x
 | 2 | x | o | x | o | o | o | x | x
 | 3 | o | o | x | o | o | o | o | x
@@ -46,7 +49,36 @@ There are seven different runs of the online course, resulting in seven distinct
 | 6 | o | o | o | o | o | o | o | o
 | 7 | o | o | o | o | o | o | o | o
 
-### 2.2 Data description report
+From this summary table, quantitative data on un-enrollment can be observed across different runs. However, it is important to note that there are no leaving survey response in the first three runs, which limits insights into student withdrawal reasons for those runs.
+
+### 2.3 Data description
+Two surveys responses including *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments* are used as the primary files for the un-enrollment analysis, where n is the running number. For better understanding, the description of each column that used in this analysis are summarized in the table below.
+
+| Column | Description | Survey |
+|:------|:-----------| :-----| 
+| learner_id | Unique identifier for each student | Leave, Enrollment | 
+| enrolled_at | Time stamp of enrollment | Enrollment | 
+| unenrolled_at | Time stamp of un-enrollment (same as `left_at`)  | Enrollment | 
+| left_at |  Time stamp of un-enrollment (same as `unenrolled_at`) | Leave | 
+| age_range | Age range of the student | Enrollment | 
+| employment_status | Current employment status of the student | Enrollment | 
+| leaving_reason | Reason of leaving the course| Leave | 
+| last_completed_step_number | The latest module that student complete before leaving | Leave | 
+| last_completed_week_number | Week number of the latest module that student complete before leaving | Leave | 
+
+### 2.4 Data quality
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
