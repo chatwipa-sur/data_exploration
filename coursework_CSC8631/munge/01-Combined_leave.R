@@ -19,6 +19,7 @@ leave_dfs <- Map(function(df, name) {
 
 # Combine all data frames into one
 leave_survey_all <- bind_rows(leave_dfs)
+leave_survey_all$leaving_reason <- gsub("’", "'", leave_survey_all$leaving_reason)
 
 # ---------------- Select enrollment ---------------- #
 enroll_dfs <- mget(ls(pattern = "enrolments"))
