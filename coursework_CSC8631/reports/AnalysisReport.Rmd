@@ -88,17 +88,16 @@ Two survey responses, including *cyber.security.n_leaving.survey.responses* and 
 
 ```{r, echo=FALSE}
 table_data <- data.frame(
-  Column = c("learner_id", "enrolled_at", "unenrolled_at", "left_at", "age_range", 
+  Column = c("learner_id", "enrolled_at", "unenrolled_at", "left_at",
              "employment_status", "leaving_reason"),
   Description = c("Unique identifier for each student", 
                   "Time stamp of enrollment", 
                   "Time stamp of un-enrollment (same as `left_at`)", 
-                  "Time stamp of un-enrollment (same as `unenrolled_at`)", 
-                  "Age range of the student", 
+                  "Time stamp of un-enrollment (same as `unenrolled_at`)",
                   "Current employment status of the student", 
                   "Reason of leaving the course"),
   Survey = c("Leave, Enrollment", "Enrollment", "Enrollment", "Leave", 
-             "Enrollment", "Enrollment", "Leave")
+             "Enrollment", "Leave")
 )
 
 # Print the table with kable
@@ -200,15 +199,31 @@ ggplot(leave_reason_counts, aes(x = leaving_reason, y = n, fill = run_number)) +
 ```
 The chart shows that time management is the primary problem making learner withdraw the course, observing from high counts of I don’t have enough time" and "The course required more time than I realized" categories. There are low number of student that withdraw the course due to skill alignment, course difficulty and course expectations, indicating the the difficulty level of this course might be generally acceptable for most of students. In addition, there are high number of students that withdraw the course from other reasons.
 
-These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rates. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. Therefore, skill alignment and managing student expectations are two areas that could be improved in future runs.
+These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rates. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. 
 
-This report proposes two potential solutions to enhance course performance. First, introducing a pre-test exam before enrollment could help students understand the overall content provided in this course. If a student scores high on the pre-test, it may suggest that the course is too easy for them. In contrast, if a student cannot answer all the questions provided, it may suggest that the course is too challenging for them at this time, and they may need to study some background knowledge before enrolling. Second, providing a expected learning outcomes to student before enrollment is one of the possible solutions. The summary of learning outcome would help student access whether the course aligns with their expectations.
+This report proposes three potential solutions to enhance course performance. First, providing a study plan may help students see the time required for this course and the timeline for completion more clearly. For example, students could be given an estimate of study hours per week, and the platform could then generate a personalized study plan based on this information. This would enhance students’ ability to manage their time and reduce withdrawal rate. Second, introducing a pre-test exam before enrollment could help students understand the overall content provided in this course. If a student scores high on the pre-test, it may suggest that the course is too easy for them. In contrast, if a student cannot answer all the questions provided, it may suggest that the course is too challenging for them at this time, and they may need to study some background knowledge before enrolling. Lastly, providing a expected learning outcomes to student before enrollment is one of the possible solutions. The summary of learning outcome would help student access whether the course aligns with their expectations. 
 
 ## Evaluation
+In this investigation, the analysis shows that time management is the most common reason for un-enrollment. However, skill alignment and course expectations are also challenges that should be addressed to improve future course performance. The data shows that the withdrawal rate consistently decreases after the course structure adjustment in the third run, indicating that the current course structure is suitable for most learners. Additionally, three possible solutions have been suggested based on the data findings to enhance course performance. Therefore, this report achieve the success criteria because it can answer all questions in the section 1.1.
 
+However, the most important factor of un-enrollment rate that can not identify in this investigation is the quality of the course. Thus, the survey responses from fully participate learner should be used to evaluate the course quality in the next investigation round.
 
 # Second investigation
+## Business Understanding
+Online learning is one of the learning method that popular nowadays due to their accessibility and flexibility. However, most of students un-enroll the course after a few day or some of them un-enroll right after start the first section which is the primary problem of the online learning. Therefore, one of the challenge for online lesson provider is how to reduce the number of un-enrollment student.
 
+### 1.1 Business objectives and success criteria
+The objective of this report is to analyse the factors contributing to student withdrawal in order to gain insights to understand the issues and identify strategies for improving the course. The analysis will cover the reasons for student withdrawal, the progression of course improvements over time, and potential enhancements for future course.
+
+### 1.2 Requirement, assumption, and constrains
+The data set in this analysis come from the “Cyber Security: Safety At Home, Online, and in Life” course made by `Newcastle University` which public and collect the data through `FutureLearn`, virtual learning provider. The un-enrollment survey which include the information about reason of un-enrollment, withdrawal dates and learning hours are the primary information that used for the analysis.
+
+The R project template is used to structure and organize the analysis to ensure that the analysis results can be reproduced. Additionally, this project also backs up and records versions using Git to track changes during the development period.
+
+The students withdrawal survey is expected to identify the issues of course and address the course improvement method. However, some survey responses may be incomplete, as some question in the survey is compulsory. Consequently, the analysis results may not represent the entire student population.
+
+### 1.3 Risk and contingencies
+As student survey is the primary source that used for analysis, which relies on user-provided input. Consequently, it might contain missing response in some question that might effect to the analysis result. Therefore, the data set will be cleaned and selected the relevant responses for analysis, depending on the specific business question being addressed.
 
 
 
