@@ -17,6 +17,11 @@ library(ProjectTemplate)
 load.project()
 library(dplyr)
 library(knitr)
+library(ggplot2)
+library(scales)
+library(tidyverse)
+library(gridExtra)
+library(grid)
 ```
 
 # First investigation
@@ -102,9 +107,11 @@ kable(table_data, align = c("l", "l", "c"),
 ```
 
 ## Data preparation
-The pre-processing script is stored in the `munge` folder of the project template. This file will be processed automatically upon starting the project for the first time. The pre-processed file will then be stored in the `cache` folder to reduce processing time for subsequent runs.
+The pre-processing script is stored in the `munge` folder of the project template. This file will be processed automatically upon starting the project for the first time. The pre-processed file will then be stored in the `cache` folder to reduce processing time for subsequent runs. In this investigation, `01-Combined_leave` serves as the primary file for pre-processing the data. Only *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments* are selected to analyze factors related to learner un-enrollment.
 
-In this investigation, `01-Combined_leave` serves as the primary file for pre-processing the data. As mentioned in the previous section, only *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments* are selected to analyze factors related to learner un-enrollment. First, all columns related to time in both response files were processed to convert the data type to `POSIX` time. Then, rows from each type of survey response were combined to generate two data frames including all leaving surveys and enrollment surveys, with the adding of running number column for separation. Finally, both data frames were joined by `full_join()` function that matching the *learner_id* column to create the `preprocessed_leave` data frame for analysis. This method will keep all observations in both data frame. 
+Firstly, all columns related to time in both response files were processed to convert the data type to `POSIX` time. Then, rows from each type of survey response were combined to generate two data frames including all leaving surveys and enrollment surveys, with the adding of running number column for separation. Finally, both data frames were joined by `full_join()` function that matching the *learner_id* column to create the `preprocessed_leave` data frame for analysis. This method will keep all observations in both data frame and add the `NA` value in the empty field.
+
+The pre-processed data frame contains 37,304 observations across 21 variables, which is higher than the total rows in *cyber.security.n_enrolments*. This increase is due to some learners providing multiple responses to questions, resulting in multiple entries for the same learner ID in the leaving survey.
 
 ```{r, include = FALSE}
 duplicate_leave <- leave_survey_all |>
@@ -120,18 +127,82 @@ duplicate_enroll <- enroll_survey_all |>
 cat("Number of Duplicate IDs (Enroll survey):", nrow(duplicate_enroll), "\n")
 ```
 
-The pre-processed data frame contains 37,304 observations with 21 variables which higher than total rows of *cyber.security.n_enrolments* because some learner response the question in multiple answer, resulting in multiple response of same learner ID in leaving survey.
-
 ## Modeling
-The 
 
-```{r}
+```{r, echo=FALSE, fig.width=12, fig.height=4, fig.cap="Percentage of enrollment status"}
+enrollment_summary <- enroll_survey_all |>
+  group_by(run_number) |>
+  summarize(uncomplete = n(),
+            complete = sum(!is.na(fully_participated_at)),
+            unenroll = sum(!is.na(unenrolled_at))) |>
+  pivot_longer(cols = c(uncomplete, complete, unenroll), 
+               names_to = "status", 
+               values_to = "count") |>
+  group_by(run_number) |>
+  mutate(total = sum(count),
+         percentage = count / total * 100)
+
+
+# Stacked bar plot
+stack_plot <- ggplot(enrollment_summary,
+                     aes(x = fct_rev(factor(run_number, levels = sort(unique(run_number), decreasing = TRUE))),
+                         y = count, fill = status)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = ifelse(count >= 500, count, "")),
+            position = position_stack(vjust = 0.5), color = "white", size = 3) +
+  labs(x = "Count", y = "Run Number", fill = "Enrollment Status") +
+  theme_minimal() +
+  scale_fill_manual(values = c("uncomplete" = "gray", "complete" = "#fc8d62", "unenroll" = "#66c2a5"))
+
+# 100% stacked bar plot
+stack_100_plot <- ggplot(enrollment_summary,
+                         aes(x = fct_rev(factor(run_number, levels = sort(unique(run_number), decreasing = TRUE))),
+                             y = percentage, fill = status)) +
+  geom_bar(stat = "identity", position = "fill") +
+  geom_text(aes(label = ifelse(percentage >= 4, paste0(round(percentage, 0), "%"), "")), 
+            position = position_fill(vjust = 0.5), color = "white", size = 3) +
+  labs(x = "Percentage", y = "Run Number", fill = "Enrollment Status") +
+  theme_minimal() +
+  scale_fill_manual(values = c("uncomplete" = "gray", "complete" = "#fc8d62", "unenroll" = "#66c2a5"))
+
+
+grid.arrange(stack_plot, stack_100_plot, ncol = 2, nrow = 1)
 
 ```
+The stacked bar chart illustrates the distribution of enrollment status across all course runs. The number of enrollments significantly drop at the second run and continues to decrease gradually in subsequent runs. The 100% stack bar chart supports that there may have been a significant change in the course structure during the second run, leading to a higher percentage of student withdrawals and lower number of enrollment. Additionally, they may have been some change in the third run causing slightly decrease of withdrawal number.
 
+Upon reviewing the course overview, the second run of this course introduced additional steps to the course structure: 1 step in the first section and 2 steps in the second section. However, the third run removed one step from the final session. These change may have influenced the student withdrawal rate.
 
+```{r, echo=FALSE, fig.width=12, fig.height=3.5, fig.cap="Distribution of leaving reasons"}
+leave_reason_counts <- leave_survey_all |>
+  group_by(run_number) |>
+  count(leaving_reason)
 
+# Define a custom color palette based on integer run numbers
+custom_colors <- c("4" = "#e66101", 
+                   "5" = "#fdb863",  
+                   "6" = "#b2abd2",
+                   "7" = "#5e3c99") 
 
+# Ensure your run_number is treated as a factor for plotting
+leave_reason_counts$run_number <- as.factor(leave_reason_counts$run_number)
+
+ggplot(leave_reason_counts, aes(x = leaving_reason, y = n, fill = run_number)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(label = ifelse(n > 5, n, "")), 
+            position = position_stack(vjust = 0.5), color = "white", size = 4) +
+  theme_minimal() +
+  labs(x = "Reasons",
+       y = "Count",
+       fill = "No. Run") + 
+  scale_x_discrete(labels = label_wrap(20)) +
+  scale_fill_manual(values = custom_colors)
+```
+The chart shows that time management is the primary problem making learner withdraw the course, observing from high counts of I don’t have enough time" and "The course required more time than I realized" categories. There are low number of student that withdraw the course due to skill alignment, course difficulty and course expectations, indicating the the difficulty level of this course might be generally acceptable for most of students. In addition, there are high number of students that withdraw the course from other reasons.
+
+These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rates. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. Therefore, skill alignment and managing student expectations are two areas that could be improved in future runs.
+
+This report proposes two potential solutions to enhance course performance. First, introducing a pre-test exam before enrollment could help students understand the overall content provided in this course. If a student scores high on the pre-test, it may suggest that the course is too easy for them. In contrast, if a student cannot answer all the questions provided, it may suggest that the course is too challenging for them at this time, and they may need to study some background knowledge before enrolling. Second, providing a expected learning outcomes to student before enrollment is one of the possible solutions. The summary of learning outcome would help student access whether the course aligns with their expectations.
 
 ## Evaluation
 
@@ -142,30 +213,3 @@ The
 
 
 
-
-
-
-
-
-```{r}
-# Count the unique responses in each column
-unique_counts <- sapply(cyber.security.7_enrolments, function(col) length(unique(col[!is.na(col)])))
-
-# Print the results
-cat("Unique Responses per Column:\n")
-print(unique_counts)
-```
-
-```{r}
-str(cyber.security.7_leaving.survey.responses)
-```
-
-```{r}
-preprocessed_leave |> 
-  filter(!is.na(unenrolled_at)) |>
-  count(run_number, sort = TRUE)
-
-preprocessed_leave |> 
-  filter(!is.na(fully_participated_at)) |>
-  count(run_number, sort = TRUE)
-```
