@@ -4,7 +4,7 @@ library(lubridate)
 
 # ---------------- Select sentiment survey response ---------------- #
 # Get all data frames matching the "sentiment" pattern
-sentiment_dfs <- mget(ls(pattern = "sentiment"))
+sentiment_dfs <- mget(ls(pattern = "weekly.sentiment.survey"))
 
 # Remove empty data frames or those without required columns
 sentiment_dfs <- Filter(function(df) {
@@ -20,3 +20,4 @@ sentiment_dfs <- Map(function(df, name) {
 
 preprocessed_sentiment <- bind_rows(sentiment_dfs)
 
+cache('preprocessed_sentiment')
