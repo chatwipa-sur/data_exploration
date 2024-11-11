@@ -128,7 +128,7 @@ duplicate_enroll <- enroll_survey_all |>
 cat("Number of Duplicate IDs (Enroll survey):", nrow(duplicate_enroll), "\n")
 ```
 
-## Modeling
+### 1.4 Modeling
 
 ```{r, echo=FALSE, fig.cap="Percentage of enrollment status", fig.width=12, fig.height=4}
 enrollment_summary <- enroll_survey_all |>
@@ -205,7 +205,7 @@ These data suggest that the number of steps in the course is an important factor
 
 This report proposes three potential solutions to enhance course performance. First, providing a study plan may help students see the time required for this course and the timeline for completion more clearly. For example, students could be given an estimate of study hours per week, and the platform could then generate a personalized study plan based on this information. This would enhance students’ ability to manage their time and reduce withdrawal rate. Second, introducing a pre-test exam before enrollment could help students understand the overall content provided in this course. If a student scores high on the pre-test, it may suggest that the course is too easy for them. In contrast, if a student cannot answer all the questions provided, it may suggest that the course is too challenging for them at this time, and they may need to study some background knowledge before enrolling. Lastly, providing a expected learning outcomes to student before enrollment is one of the possible solutions. The summary of learning outcome would help student access whether the course aligns with their expectations. 
 
-## 1.4 Evaluation
+## 1.5 Evaluation
 In this investigation, the analysis shows that time management is the most common reason for un-enrollment. However, skill alignment and course expectations are also challenges that should be addressed to improve future course performance. The data shows that the withdrawal rate consistently decreases after the course structure adjustment in the third run, indicating that the current course structure is suitable for most learners. Additionally, three possible solutions have been suggested based on the data findings to enhance course performance. Therefore, this report achieve the success criteria because it can answer all questions in the section 1.1.1.
 
 However, the most important factor of un-enrollment rate that can not identify in this investigation is the quality of the course. Thus, the survey responses from fully participate learner should be used to evaluate the course quality in the next investigation round.
@@ -273,7 +273,7 @@ In this investigation, `02-Combined_sentiment` serves as the primary file for pr
 
 The pre-processing process start from loading all sentiment files in the `data` folder and store into one list. After that, the script will combine all files into one data frame by row. Finally, the pre-processed data frame contains 181 observations with 6 variables.
 
-## Modeling
+### 2.4 Modeling
 The cluster bar chart below shows the distribution of experience rating. The data shows that most students gave a rating of 3, which is the highest rating, indicating that the course is satisfactory for students. 
 
 ```{r, echo=FALSE, fig.width=12, fig.height=3.5, fig.align='center', fig.cap="Distribution of experience rating"}
@@ -331,15 +331,15 @@ ggplot(sentiment_emotion, aes(x = sentiment, y = count, fill = sentiment)) +
 ```
 ```{r}
 # Assuming `s` is the result of get_nrc_sentiment()
-sentiment_with_polarity <- preprocessed_sentiment %>%
-  mutate(
-    positive = s$positive,
-    negative = s$negative,
-    sentiment_polarity = positive - negative  # Calculate sentiment polarity
-  )
+#sentiment_with_polarity <- preprocessed_sentiment %>%
+ # mutate(
+  #  positive = s$positive,
+   # negative = s$negative,
+    #sentiment_polarity = positive - negative  # Calculate sentiment polarity
+  #)
 
 # View the result
-head(sentiment_with_polarity)
+#head(sentiment_with_polarity)
 
 ```
 

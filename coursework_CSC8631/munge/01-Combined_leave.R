@@ -1,13 +1,9 @@
-library(dplyr)
-library(stringr)
-library(lubridate)
-
-# ---------------- Select leaving survey response ---------------- #
+# Select all leaving survey response files 
 leave_dfs <- mget(ls(pattern = "leaving.survey.response"))
 
 # Convert columns to the same data type and store all data frame in one list
 leave_dfs <- Map(function(df, name) {
-  df$run_number <- as.integer(str_extract(name, "\\d+"))
+  df$run_number <- as.integer(str_extract(name, "\\d+")) #add name column
   df$learner_id <- as.character(df$learner_id)
   df$leaving_reason <- as.character(df$leaving_reason)
   
@@ -19,14 +15,16 @@ leave_dfs <- Map(function(df, name) {
 
 # Combine all data frames into one
 leave_survey_all <- bind_rows(leave_dfs)
+
+# Change the "’" to "'" if found
 leave_survey_all$leaving_reason <- gsub("’", "'", leave_survey_all$leaving_reason)
 
-# ---------------- Select enrollment ---------------- #
+# Select all enrollment survey response files 
 enroll_dfs <- mget(ls(pattern = "enrolments"))
 
 # Convert columns to the same data type and store all data frame in one list
 enroll_dfs <- Map(function(df, name) {
-  df$run_number <- as.integer(str_extract(name, "\\d+"))
+  df$run_number <- as.integer(str_extract(name, "\\d+")) # add name column
   df$learner_id <- as.character(df$learner_id)
 
   # Time stamp handling
@@ -40,6 +38,7 @@ enroll_dfs <- Map(function(df, name) {
 # Combine all data frames into one
 enroll_survey_all <- bind_rows(enroll_dfs)
 
+# Join leave survey and enrollment survey by learner id
 preprocessed_leave <- full_join(enroll_survey_all, leave_survey_all, by = c("learner_id", "run_number"))
 
 # Cache the combined data frame
