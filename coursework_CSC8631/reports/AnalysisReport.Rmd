@@ -202,24 +202,24 @@ This report proposes three potential solutions to enhance course performance. Fi
 ## 1.5 Evaluation
 In this investigation, the analysis shows that time management is the most common reason for un-enrollment. However, skill alignment and course expectations are also challenges that should be addressed to improve future course performance. The data shows that the withdrawal rate consistently decreases after the course structure adjustment in the third run, indicating that the current course structure is suitable for most learners. Additionally, three possible solutions have been suggested based on the data findings to enhance course performance. Therefore, this report achieve the success criteria because it can answer all questions in the section 1.1.1.
 
-However, the most important factor of un-enrollment rate that could not identify in this investigation is the quality of the course. Thus, the survey responses from fully participate learner should be used to evaluate the course quality in the next investigation round.
+However, the most important factor of un-enrollment rate that could not identify in this investigation is the quality of the course. Thus, the survey responses of experience rating provided by learner should be used to evaluate the course quality and find the possible improvement in the next investigation round.
 
 # 2. Second investigation
 ## 2.1 Business Understanding
-The quality of the course is one of the key factors that needs to be evaluated. The data show that although the percentage of student un-enrollment has decreased over time, the number of enrollments has also declined. Therefore, this investigation aims to analyse student satisfaction.
+The quality of the course is one of the key factors effect to un-enrollment. Although, the data shows the decreasing trend of student withdrawal but the number of enrollments has also declined. Therefore, the course quality should be evaluated to ensure that current course structure and learning method are suitable for majority of student.
 
 ### 2.1.1 Business objectives and success criteria
-The objective of this report is to analyse student satisfaction for this course. The analysis will cover overall experience ratings and satisfaction trends. Additionally, sentiment analysis will identify areas for improvement by examining both positive and negative opinions.
+The objective of this report is to analyse the course quality by analyzing the student satisfaction. The analysis will cover overall experience ratings and satisfaction trends. Additionally, sentiment analysis will identify areas for improvement by examining both positive and negative opinions.
 
 ### 2.1.2 Requirements, assumptions, and constrains
-All requirements and constraints from the first investigation (section 1.1.2) continue to apply. This investigation assumes that the experience ratings provided by students, along with sentiment analysis, can effectively address the overall satisfaction with the course.
+All requirements and constraints from the first investigation (section 1.1.2) continue to apply. This investigation assumes that the experience ratings provided by students, along with sentiment analysis, can effectively address the overall satisfaction with the course and suggesting the further improvement.
 
 ### 2.1.3 Risk and contingencies
-The sentiment response was collected only from the last two runs, the findings may not fully represent student sentiments across all runs. Moreover, the accuracy of sentiment analysis depends on the quality of data. Furthermore, the accuracy of sentiment analysis depends on data quality. Therefore, if this analysis reveals that data quality is insufficient, further data collection may be necessary.
+The sentiment response was collected only from the last three runs, thus the findings may not fully represent student sentiments across all runs. Moreover, the accuracy of sentiment analysis depends on the quality of data. Furthermore, the accuracy of sentiment analysis depends on data quality. Therefore, if this analysis reveals that data quality is insufficient, further data collection may be necessary.
 
 ## 2.2 Data Understanding
 ### 2.2.1 Initial data collection
-There are seven sentiment survey responses file that provided in this data set. However, only the files in sixth and seventh runs that contain the student responses. 
+There are seven sentiment survey responses file that provided in this data set. However, the files from 1-4 runs are the empty files, therefore, only the files in fifth, sixth and seventh runs are able to used for analysis. 
 
 ### 2.2.2 Data exploration
 *cyber.security.n_weekly.sentiment.survey.responses* is the primary file for this analysis, where "n" represents the run number. For better understanding, the description of each column that used in this analysis are summarized in the table below.
@@ -268,9 +268,9 @@ In this investigation, `02-Combined_sentiment` serves as the primary file for pr
 The pre-processing process start from loading all sentiment files in the `data` folder and store into one list. After that, the script will combine all files into one data frame by row. Finally, the pre-processed data frame contains 181 observations with 6 variables.
 
 ### 2.4 Modeling
-The cluster bar chart below shows the distribution of experience rating. The data shows that most students gave a rating of 3, which is the highest rating, indicating that the course is satisfactory for students. 
+The clustered bar chart below shows the distribution of experience ratings. The data indicate that most students gave a rating of 3, the highest rating, with a few giving ratings of 2 and 1, respectively. This suggests that most students are satisfied with the course.
 
-```{r, echo=FALSE, fig.width=12, fig.height=3.5, fig.align='center', fig.cap="Distribution of experience rating"}
+```{r, echo=FALSE, fig.width=12, fig.height=3, fig.align='center', fig.cap="Distribution of experience rating"}
 # Create a complete grid of all possible combinations of run_number and experience_rating
 complete_combinations <- expand.grid(
   run_number = unique(preprocessed_sentiment$run_number),
@@ -294,99 +294,76 @@ ggplot(sentiment_summary_complete, aes(x = factor(run_number), y = count, fill =
             position = position_dodge(width = 0.9), vjust = -0.3, color = "black", size = 4) +
   labs(x = "Run Number",
        y = "Response Count",
-       fill = "Experience Rating") +
-  theme_minimal() +
-  ylim(0, 100) +
+       fill = "Experience Rating") + 
+  ylim(0, 100) + theme_minimal() +
   scale_fill_manual(values = c("1" = "#efedf5", "2" = "#bcbddc", "3" = "#756bb1"))
 ```
-For the student feedback, this report analyse by using `syuzhet` library. This library help categories words in each sentence into sentiments including negative and positive. Additionally, the neutral feeling can be then identify if the sentence does not contain any negative or positive sentiments. However, there is no student feedback in the fifth run, thus, this analysis will be performed based on only sixth and seventh runs. The summary of sentiment analysis is illustrated below.
 
-```{r, echo=FALSE, fig.width=10, fig.height=3.5, fig.align='center', fig.cap="Overview of sentiment across each run"}
-# Sentiment analysis of 6th run
-feedback_run6 <- preprocessed_sentiment[preprocessed_sentiment$run_number == 6, ]
+For the student feedback analysis, this report uses the syuzhet library. This library helps categorize words in each sentence into sentiments, including negative and positive. Additionally, sentences that contain neither negative nor positive sentiments are identified as neutral. However, since there is no student feedback from the fifth run, this analysis is based solely on the sixth and seventh runs. A summary of the sentiment analysis is illustrated below.
 
-comment_run6 <- iconv(feedback_run6$reason, to = 'utf-8')
-sentiment_result_run6 <- get_nrc_sentiment(comment_run6)
-sentiment_result_run6$neutral <-
-  ifelse(sentiment_result_run6$negative+sentiment_result_run6$positive==0, 1, 0)
+```{r, echo=FALSE, fig.width=12, fig.height=3, fig.align='center', fig.cap="Sentiment analysis by experience rating"}
+# Initialize an empty data frame
+sentiment_by_experience <- data.frame()
 
-sentiment_summary_run6 <- sentiment_result_run6 |>
-  select(positive, negative, neutral) |>
-  summarise(across(everything(), sum)) |>
-  pivot_longer(cols = everything(), names_to = "sentiment", values_to = "count")
+# Calculate the sentiment score in each experience rating
+for (rating in unique(preprocessed_sentiment$experience_rating)) {
 
-# Donut chart plotting
-sentiment_summary_run6$fraction <- sentiment_summary_run6$count / sum(sentiment_summary_run6$count)
-sentiment_summary_run6$ymax <- cumsum(sentiment_summary_run6$fraction)
-sentiment_summary_run6$ymin <- c(0, head(sentiment_summary_run6$ymax, n = -1))
-sentiment_summary_run6$labelPosition <- (sentiment_summary_run6$ymax + sentiment_summary_run6$ymin) / 2
-sentiment_summary_run6$label <- paste0(sentiment_summary_run6$sentiment, "\n", round(sentiment_summary_run6$fraction * 100, 1), "%")
+  # Calculate sentiment score
+  df_rating <- preprocessed_sentiment[preprocessed_sentiment$experience_rating == rating, ]
+  comments <- iconv(df_rating$reason, to = 'utf-8')
+  sentiment_result <- get_nrc_sentiment(comments)
+  sentiment_result$neutral <- ifelse(sentiment_result$negative + sentiment_result$positive == 0, 1, 0)
+  
+  # Summarize the sentiment counts
+  sentiment_summary <- sentiment_result |>
+    select(positive, negative, neutral) |>
+    summarise(across(everything(), sum)) |>
+    pivot_longer(cols = everything(), names_to = "sentiment", values_to = "count")
+  sentiment_summary$experience_rating <- rating
+  
+  # Combine rows of each experience rating
+  sentiment_by_experience <- rbind(sentiment_by_experience, sentiment_summary)
+}
 
-donut_run6 <- ggplot(sentiment_summary_run6, 
-                     aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = sentiment)) +
-  geom_rect() +
-  geom_label(x = 3.5, aes(y = labelPosition, label = label), size = 4) +
-  scale_fill_brewer(palette = "Set2") +
-  coord_polar(theta = "y") +
-  xlim(c(2, 4)) +
-  theme_void() +
-  theme(legend.position = "none") +
-  labs(title = "Sentiment Analysis - 6th Run")
+# Calculate percentage within each experience rating
+sentiment_by_experience <- sentiment_by_experience |>
+  group_by(experience_rating) |>
+  mutate(percentage = count / sum(count) * 100) |>
+  ungroup()
 
-# Sentiment analysis of 7th run
-feedback_run7 <- preprocessed_sentiment[preprocessed_sentiment$run_number == 7, ]
+# Plot the results
+facet_labels <- c(
+  "1" = "Rating: 1",
+  "2" = "Rating: 2",
+  "3" = "Rating: 3"
+)
 
-comment_run7 <- iconv(feedback_run7$reason, to = 'utf-8')
-sentiment_result_run7 <- get_nrc_sentiment(comment_run7)
-sentiment_result_run7$neutral <-
-  ifelse(sentiment_result_run7$negative+sentiment_result_run7$positive==0, 1, 0)
-
-sentiment_summary_run7 <- sentiment_result_run7 |>
-  select(positive, negative, neutral) |>
-  summarise(across(everything(), sum)) |>
-  pivot_longer(cols = everything(), names_to = "sentiment", values_to = "count")
-
-# Donut chart plotting
-sentiment_summary_run7$fraction <- sentiment_summary_run7$count / sum(sentiment_summary_run7$count)
-sentiment_summary_run7$ymax <- cumsum(sentiment_summary_run7$fraction)
-sentiment_summary_run7$ymin <- c(0, head(sentiment_summary_run7$ymax, n = -1))
-sentiment_summary_run7$labelPosition <- (sentiment_summary_run7$ymax + sentiment_summary_run7$ymin) / 2
-sentiment_summary_run7$label <- paste0(sentiment_summary_run7$sentiment, "\n", round(sentiment_summary_run7$fraction * 100, 1), "%")
-
-donut_run7 <- ggplot(sentiment_summary_run7, 
-                     aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = sentiment)) +
-  geom_rect() +
-  geom_label(x = 3.5, aes(y = labelPosition, label = label), size = 4) +
-  scale_fill_brewer(palette = "Set2") +
-  coord_polar(theta = "y") +
-  xlim(c(2, 4)) +
-  theme_void() +
-  theme(legend.position = "none")  +
-  labs(title = "Sentiment Analysis - 7th Run")
-
-grid.arrange(donut_run6, donut_run7, ncol = 2)
-```
-
-
-
-
-
-
-
-```{r}
-# Assuming `s` is the result of get_nrc_sentiment()
-#sentiment_with_polarity <- preprocessed_sentiment %>%
- # mutate(
-  #  positive = s$positive,
-   # negative = s$negative,
-    #sentiment_polarity = positive - negative  # Calculate sentiment polarity
-  #)
-
-# View the result
-#head(sentiment_with_polarity)
+ggplot(sentiment_by_experience, aes(x = sentiment, y = count, fill = sentiment)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~ experience_rating, labeller = as_labeller(facet_labels)) +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.3, color = "black", size = 4) +
+  labs(y = "Count", x = "Sentiment") +
+  scale_fill_manual(values = c("negative" = "#fc8d59", "positive" = "#ffffbf", "neutral" = "#91bfdb")) +
+  theme(strip.text = element_text(size = 12)) +
+  ylim(0,150)
 
 ```
 
+The clustered bar plot shows the count of each sentiment, segmented by experience rating. The data indicates that most students provided neutral feedback on the course, and positive comments tend to increase with higher rating scores. However, the negative feedback also presented in the experience rating 2 and 3, which could reflect the possible improvement points of this course. The full feedback that contain negative word are shown in the table below.
+
+```{r, echo = FALSE}
+# Filter for negative feedback only
+# Calculate sentiment score
+comments <- iconv(preprocessed_sentiment$reason, to = 'utf-8')
+sentiment_result <- get_nrc_sentiment(comments)
+negative_feedback <- preprocessed_sentiment[sentiment_result$negative > 0, "reason"]
+
+# Display the negative feedback sentences
+kable(negative_feedback, 
+      col.names = "Negative Feedback", 
+      align = "l", 
+      caption = "Feedback contains negative words")
+```
 
 
 
