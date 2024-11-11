@@ -14,14 +14,6 @@ knitr::opts_knit$set(root.dir= normalizePath('..'))
 ```{r, include=FALSE}
 library(ProjectTemplate)
 load.project()
-library(dplyr)
-library(knitr)
-library(ggplot2)
-library(scales)
-library(tidyverse)
-library(gridExtra)
-library(grid)
-library(syuzhet)
 ```
 
 # 1. First investigation
@@ -169,6 +161,7 @@ stack_100_plot <- ggplot(enrollment_summary,
 grid.arrange(stack_plot, stack_100_plot, ncol = 2, nrow = 1)
 ```
 
+
 The stacked bar chart illustrates the distribution of enrollment status across all course runs. The number of enrollments significantly drop at the second run and continues to decrease gradually in subsequent runs. The 100% stack bar chart supports that there may have been a significant change in the course structure during the second run, leading to a higher percentage of student withdrawals and lower number of enrollment. Additionally, they may have been some change in the third run causing slightly decrease of withdrawal number.
 
 Upon reviewing the course overview, the second run of this course introduced additional steps to the course structure: 1 step in the first section and 2 steps in the second section. However, the third run removed one step from the final session. These change may have influenced the student withdrawal rate.
@@ -199,6 +192,7 @@ ggplot(leave_reason_counts, aes(x = leaving_reason, y = n, fill = run_number)) +
   scale_fill_manual(values = custom_colors)
 ```
 
+
 The chart shows that time management is the primary problem making learner withdraw the course, observing from high counts of I don’t have enough time" and "The course required more time than I realized" categories. There are low number of student that withdraw the course due to skill alignment, course difficulty and course expectations, indicating the the difficulty level of this course might be generally acceptable for most of students. In addition, there are high number of students that withdraw the course from other reasons.
 
 These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rates. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. 
@@ -208,7 +202,7 @@ This report proposes three potential solutions to enhance course performance. Fi
 ## 1.5 Evaluation
 In this investigation, the analysis shows that time management is the most common reason for un-enrollment. However, skill alignment and course expectations are also challenges that should be addressed to improve future course performance. The data shows that the withdrawal rate consistently decreases after the course structure adjustment in the third run, indicating that the current course structure is suitable for most learners. Additionally, three possible solutions have been suggested based on the data findings to enhance course performance. Therefore, this report achieve the success criteria because it can answer all questions in the section 1.1.1.
 
-However, the most important factor of un-enrollment rate that can not identify in this investigation is the quality of the course. Thus, the survey responses from fully participate learner should be used to evaluate the course quality in the next investigation round.
+However, the most important factor of un-enrollment rate that could not identify in this investigation is the quality of the course. Thus, the survey responses from fully participate learner should be used to evaluate the course quality in the next investigation round.
 
 # 2. Second investigation
 ## 2.1 Business Understanding
@@ -305,30 +299,80 @@ ggplot(sentiment_summary_complete, aes(x = factor(run_number), y = count, fill =
   ylim(0, 100) +
   scale_fill_manual(values = c("1" = "#efedf5", "2" = "#bcbddc", "3" = "#756bb1"))
 ```
-For the student feedback, this report analyse by using `syuzhet` library. This library help categories words in each sentence into sentiments including negative and positive. Additionally, the neutral feeling can be then identify if the sentence does not contain any negative or positive sentiments. 
+For the student feedback, this report analyse by using `syuzhet` library. This library help categories words in each sentence into sentiments including negative and positive. Additionally, the neutral feeling can be then identify if the sentence does not contain any negative or positive sentiments. However, there is no student feedback in the fifth run, thus, this analysis will be performed based on only sixth and seventh runs. The summary of sentiment analysis is illustrated below.
 
-```{r}
-comment <- iconv(preprocessed_sentiment$reason, to = 'utf-8')
-sentiment_result <- get_nrc_sentiment(comment)
-sentiment_result$neutral <-
-  ifelse(sentiment_result$negative+sentiment_result$positive==0, 1, 0)
+```{r, echo=FALSE, fig.width=10, fig.height=3.5, fig.align='center', fig.cap="Overview of sentiment across each run"}
+# Sentiment analysis of 6th run
+feedback_run6 <- preprocessed_sentiment[preprocessed_sentiment$run_number == 6, ]
 
-sentiment_emotion <- sentiment_result |>
-  select(anger, anticipation, disgust, fear, joy, sadness, surprise, trust) |>
+comment_run6 <- iconv(feedback_run6$reason, to = 'utf-8')
+sentiment_result_run6 <- get_nrc_sentiment(comment_run6)
+sentiment_result_run6$neutral <-
+  ifelse(sentiment_result_run6$negative+sentiment_result_run6$positive==0, 1, 0)
+
+sentiment_summary_run6 <- sentiment_result_run6 |>
+  select(positive, negative, neutral) |>
   summarise(across(everything(), sum)) |>
   pivot_longer(cols = everything(), names_to = "sentiment", values_to = "count")
 
-ggplot(sentiment_emotion, aes(x = sentiment, y = count, fill = sentiment)) +
-  geom_bar(stat = "identity") +
-  labs(
-    title = "Sentiment Distribution",
-    x = "Sentiment Type",
-    y = "Count"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_brewer(palette = "Set3")
+# Donut chart plotting
+sentiment_summary_run6$fraction <- sentiment_summary_run6$count / sum(sentiment_summary_run6$count)
+sentiment_summary_run6$ymax <- cumsum(sentiment_summary_run6$fraction)
+sentiment_summary_run6$ymin <- c(0, head(sentiment_summary_run6$ymax, n = -1))
+sentiment_summary_run6$labelPosition <- (sentiment_summary_run6$ymax + sentiment_summary_run6$ymin) / 2
+sentiment_summary_run6$label <- paste0(sentiment_summary_run6$sentiment, "\n", round(sentiment_summary_run6$fraction * 100, 1), "%")
+
+donut_run6 <- ggplot(sentiment_summary_run6, 
+                     aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = sentiment)) +
+  geom_rect() +
+  geom_label(x = 3.5, aes(y = labelPosition, label = label), size = 4) +
+  scale_fill_brewer(palette = "Set2") +
+  coord_polar(theta = "y") +
+  xlim(c(2, 4)) +
+  theme_void() +
+  theme(legend.position = "none") +
+  labs(title = "Sentiment Analysis - 6th Run")
+
+# Sentiment analysis of 7th run
+feedback_run7 <- preprocessed_sentiment[preprocessed_sentiment$run_number == 7, ]
+
+comment_run7 <- iconv(feedback_run7$reason, to = 'utf-8')
+sentiment_result_run7 <- get_nrc_sentiment(comment_run7)
+sentiment_result_run7$neutral <-
+  ifelse(sentiment_result_run7$negative+sentiment_result_run7$positive==0, 1, 0)
+
+sentiment_summary_run7 <- sentiment_result_run7 |>
+  select(positive, negative, neutral) |>
+  summarise(across(everything(), sum)) |>
+  pivot_longer(cols = everything(), names_to = "sentiment", values_to = "count")
+
+# Donut chart plotting
+sentiment_summary_run7$fraction <- sentiment_summary_run7$count / sum(sentiment_summary_run7$count)
+sentiment_summary_run7$ymax <- cumsum(sentiment_summary_run7$fraction)
+sentiment_summary_run7$ymin <- c(0, head(sentiment_summary_run7$ymax, n = -1))
+sentiment_summary_run7$labelPosition <- (sentiment_summary_run7$ymax + sentiment_summary_run7$ymin) / 2
+sentiment_summary_run7$label <- paste0(sentiment_summary_run7$sentiment, "\n", round(sentiment_summary_run7$fraction * 100, 1), "%")
+
+donut_run7 <- ggplot(sentiment_summary_run7, 
+                     aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = sentiment)) +
+  geom_rect() +
+  geom_label(x = 3.5, aes(y = labelPosition, label = label), size = 4) +
+  scale_fill_brewer(palette = "Set2") +
+  coord_polar(theta = "y") +
+  xlim(c(2, 4)) +
+  theme_void() +
+  theme(legend.position = "none")  +
+  labs(title = "Sentiment Analysis - 7th Run")
+
+grid.arrange(donut_run6, donut_run7, ncol = 2)
 ```
+
+
+
+
+
+
+
 ```{r}
 # Assuming `s` is the result of get_nrc_sentiment()
 #sentiment_with_polarity <- preprocessed_sentiment %>%
