@@ -3,7 +3,9 @@ title: "Final Assignment - CSC8631"
 author: "Chatwipa Surapat"
 date: "2024-11-13"
 output:
-  pdf_document
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -18,31 +20,32 @@ load.project()
 
 # 1. First investigation
 ## 1.1 Business Understanding
-Online learning is one of the learning method that popular nowadays due to their accessibility and flexibility. However, most of students un-enroll the course after a few day or some of them un-enroll right after start the first section which is the primary problem of the online learning. Therefore, one of the challenge for online lesson provider is how to reduce the number of un-enrollment student.
+Online learning is one of the popular learning methods today due to its accessibility and flexibility. However, it has both pros and cons. Since courses are easy to access, many students give up studying and decide to un-enroll after a few days, while some un-enroll immediately after starting the first section. Therefore, this report focuses on understanding the reasons for un-enrollment and how to improve the course to avoid student dropouts.
 
 ### 1.1.1 Business objectives and success criteria
 The objective of this report is to analyse the factors contributing to student withdrawal in order to gain insights to understand the issues and identify strategies for improving the course. The analysis should cover the reasons for student withdrawal, the progression of course improvements over time, and potential enhancements for future course.
 
 ### 1.1.2 Requirements, assumptions, and constrains
-The data set in this analysis come from the “Cyber Security: Safety At Home, Online, and in Life” course made by `Newcastle University` which public and collect the data through `FutureLearn`, virtual learning provider. The un-enrollment survey which include the information about reason of un-enrollment, withdrawal dates and learning hours are the primary information that used for the analysis.
+The data set in this analysis come from the “Cyber Security: Safety At Home, Online, and in Life” course made by `Newcastle University` which public and collect the data through `FutureLearn`, virtual learning provider. 
 
-The R project template is used to structure and organize the analysis to ensure that the analysis results can be reproduced. Additionally, this project also backs up and records versions using Git to track changes during the development period.
+The `R Project Template` is used to structure and organize the analysis, in combination with `renv` to manage R libraries, ensuring that the results are reproducible. Additionally, `Git` is used to back up the project and track changes throughout the development period.
 
 The students withdrawal survey is expected to identify the issues of course and address the course improvement method. However, some survey responses may be incomplete, as some question in the survey is compulsory. Consequently, the analysis results may not represent the entire student population.
 
 ### 1.1.3 Risk and contingencies
-As student survey is the primary source that used for analysis, which relies on user-provided input. Consequently, it might contain missing response in some question that might effect to the analysis result. Therefore, the data set will be cleaned and selected the relevant responses for analysis, depending on the specific business question being addressed.
+As mentioned, student survey is the primary source that used for analysis, which relies on user-provided input but it might contain missing response in some question that might effect to the analysis result. Therefore, the data set will be cleaned and selected the relevant responses for analysis, depending on the specific business question being addressed.
 
 ## 1.2 Data Understanding
 ### 1.2.1 Initial data collection
 There are seven different runs of the online course, resulting in seven distinct sets of survey responses. The types of survey responses vary across each run. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also recorded and included in the data set. 
 
 ### 1.2.2 Data exploration
-The course structure was provided in `.pdf` format. There are three sections in this course, including exploring personal privacy online, online payment security, and future home security. However, there have been some changes to the course structure across runs, which might be one of the factors affecting un-enrollment.
+The course structure was provided in *.pdf* format. There are three sections in this course, including exploring personal privacy online, online payment security, and future home security. However, there have been some changes to the course structure across runs, which might be one of the factors affecting un-enrollment.
 
-Overall, the number of enrolled students decreased over time, with a low number of students fully participating. The percentage of unenrolled students relative to enrolled students was approximately 10% in the first five runs, but it shows a significant decrease in the sixth and seventh runs, suggesting that there may have been some changes to the course in the last two runs.
+Overall, the number of enrolled students decreased over time, with a low number of students fully participating. The percentage of unenrolled students relative to enrolled students was approximately 10% in the first five runs, but it shows a significant decrease in the sixth and seventh runs, suggesting that there may have been some changes to the course across each run, resulting in lower number of unenrolled student in the last two runs.
 
 ```{r, echo = FALSE}
+# Calculate the enrollment summary
 enrollment_summary <- enroll_survey_all |>
   group_by(run_number) |>
   summarize(total = n(),
@@ -51,6 +54,7 @@ enrollment_summary <- enroll_survey_all |>
             unenroll = sum(!is.na(unenrolled_at)),
             unenroll_percentage = (unenroll / total) * 100)
 
+# Creating table for visualization
 kable(enrollment_summary, 
       caption = "Enrollment summary", 
       digits = 2, align = "c",
@@ -58,9 +62,10 @@ kable(enrollment_summary,
                     "Full Participate", "%Full Participate", 
                     "Un-enrollment", "%Un-enrollment"))
 ```
-However, some of the response files are empty. The details of empty files of each runs are provided in the table below, where "x" indicates an empty file and "o" indicates a present file.
+Furthermore, the number of student surveys also changed overtime and some pf the reponse files are empty. The details of empty files of each runs are provided in the table below, where "x" indicates an empty file and "o" indicates a present file.
 
 ```{r, echo=FALSE}
+# Creating data frame of files status
 table_data <- data.frame(
   `No Run` = 1:7,
   Archetype = c("x", "x", "o", "o", "o", "o", "o"),
@@ -73,15 +78,18 @@ table_data <- data.frame(
   Sentiment = c("x", "x", "x", "x", "o", "o", "o")
 )
 
-# Print the table with a caption
+# Creating table for visualization
 kable(table_data, align = "c", caption = "Summary of different survey files")
 ```
 From this summary table, quantitative data on un-enrollment can be observed across different runs. However, it is important to note that there are no leaving survey response in the first three runs, which limits insights into student withdrawal reasons for those runs.
 
-Two survey responses, including *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments*, are used as the primary files for the un-enrollment analysis, where "n" represents the run number. The *learner_id* variable is present in both files and can be used to join these two files together. Additionally, there is one variable about time stamp of un-enrollment that present in both data frame but use the different name. For better understanding, the description of each column that used in this analysis are summarized in the table below.
+Two survey responses, including *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments*, are used as the primary files for the un-enrollment analysis, where "n" represents the run number. The leaving survey includes the information about reason of un-enrollment, withdrawal dates and learning hours are the primary information that used for the analysis. The enrollments survey primarily focuses on student demographics, enrollment dates, and withdrawal dates.
+
+There is a link between these two data frames. The *learner_id* variable is present in both files and can be used to join them. Additionally, both data frames contain a variable for the time stamp of un-enrollment, but they use different column names. For better clarity, the descriptions of each column used in this analysis are summarized in the table below.
 
 ```{r, echo=FALSE}
-table_data <- data.frame(
+# Create data frame of description
+description_unenroll <- data.frame(
   Column = c("learner_id", "enrolled_at", "unenrolled_at", "left_at",
              "employment_status", "leaving_reason"),
   Description = c("Unique identifier for each student", 
@@ -94,25 +102,27 @@ table_data <- data.frame(
              "Enrollment", "Leave")
 )
 
-# Print the table with kable
-kable(table_data, align = c("l", "l", "c"), 
+# Create table for visualization
+kable(description_unenroll, align = c("l", "l", "c"), 
       caption = "Description of used survey columns")
 ```
 
 ## 1.3 Data preparation
 The pre-processing script is stored in the `munge` folder of the project template. This file will be processed automatically upon starting the project for the first time. The pre-processed file will then be stored in the `cache` folder to reduce processing time for subsequent runs. In this investigation, `01-Combined_leave` serves as the primary file for pre-processing the data. Only *cyber.security.n_leaving.survey.responses* and *cyber.security.n_enrolments* are selected to analyze factors related to learner un-enrollment.
 
-Firstly, all columns related to time in both response files were processed to convert the data type to `POSIX` time and change curly apostrophe to the standard apostrophe. Then, rows from each type of survey response were combined to generate two data frames including all leaving surveys and enrollment surveys, with the adding of running number column for separation. The leaving survey contains 403 observations with 9 variables across all runs, while the enrollment survey contains 37,296 observations with 14 variables. Finally, both data frames were joined by `full_join()` function that matching the *learner_id* column to create the `preprocessed_leave` data frame for analysis. This method will keep all observations in both data frame and add the `NA` value in the empty field.
+First, all columns related to time in both response files were processed to convert the data type to POSIX time, and any apostrophes were standardized to avoid errors caused by inconsistent symbols. Then, rows from each type of survey response were combined to generate two data frames including all leaving surveys and enrollment surveys, with the adding of running number column for separation. In total, the leaving survey contains 403 observations with 9 variables across all runs, while the enrollment survey contains 37,296 observations with 14 variables. Finally, both data frames were joined by `full_join()` function that matching the *learner_id* column to create the `preprocessed_leave` data frame for analysis. This method will keep all observations in both data frame and add the `NA` value in the empty field.
 
-The pre-processed data frame contains 37,304 observations across 21 variables, which is higher than the total rows in *cyber.security.n_enrolments*. This increase is due to some learners providing multiple responses to questions, resulting in multiple entries for the same learner ID in the leaving survey.
+The pre-processed data frame contains 37,304 observations across 21 variables, which is higher than the total rows in *cyber.security.n_enrolments*, which contains 37,296 rows. This discrepancy is due to some learners providing multiple responses to questions, resulting in multiple entries for the same learner ID in the leaving survey.
 
 ```{r, include = FALSE}
+# Find the ID that present more than one time in leaving survey
 duplicate_leave <- leave_survey_all |>
   group_by(learner_id, run_number) |>
   filter(n() > 1)
 
 cat("Number of Duplicate IDs (Leave survey):", nrow(duplicate_leave), "\n")
 
+# Find the ID that present more than one time in enrollment survey
 duplicate_enroll <- enroll_survey_all |>
   group_by(learner_id, run_number) |>
   filter(n() > 1)
@@ -123,7 +133,8 @@ cat("Number of Duplicate IDs (Enroll survey):", nrow(duplicate_enroll), "\n")
 ### 1.4 Modeling
 
 ```{r, echo=FALSE, fig.cap="Percentage of enrollment status", fig.width=12, fig.height=4}
-enrollment_summary <- enroll_survey_all |>
+# Summary of enrollment status
+enrollment_status <- enroll_survey_all |>
   group_by(run_number) |>
   summarize(uncomplete = n(),
             complete = sum(!is.na(fully_participated_at)),
@@ -132,12 +143,11 @@ enrollment_summary <- enroll_survey_all |>
                names_to = "status", 
                values_to = "count") |>
   group_by(run_number) |>
-  mutate(total = sum(count),
-         percentage = count / total * 100)
+  mutate(total = sum(count), percentage = count / total * 100)
 
 
 # Stacked bar plot
-stack_plot <- ggplot(enrollment_summary,
+stack_plot <- ggplot(enrollment_status,
                      aes(x = fct_rev(factor(run_number, levels = sort(unique(run_number), decreasing = TRUE))),
                          y = count, fill = status)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -148,7 +158,7 @@ stack_plot <- ggplot(enrollment_summary,
   scale_fill_manual(values = c("uncomplete" = "gray", "complete" = "#fc8d62", "unenroll" = "#66c2a5"))
 
 # 100% stacked bar plot
-stack_100_plot <- ggplot(enrollment_summary,
+stack_100_plot <- ggplot(enrollment_status,
                          aes(x = fct_rev(factor(run_number, levels = sort(unique(run_number), decreasing = TRUE))),
                              y = percentage, fill = status)) +
   geom_bar(stat = "identity", position = "fill") +
@@ -158,6 +168,7 @@ stack_100_plot <- ggplot(enrollment_summary,
   theme_minimal() +
   scale_fill_manual(values = c("uncomplete" = "gray", "complete" = "#fc8d62", "unenroll" = "#66c2a5"))
 
+# Arrange charts into one row
 grid.arrange(stack_plot, stack_100_plot, ncol = 2, nrow = 1)
 ```
 
@@ -167,9 +178,11 @@ The stacked bar chart illustrates the distribution of enrollment status across a
 Upon reviewing the course overview, the second run of this course introduced additional steps to the course structure: 1 step in the first section and 2 steps in the second section. However, the third run removed one step from the final session. These change may have influenced the student withdrawal rate.
 
 ```{r, echo=FALSE, fig.cap="Distribution of leaving reasons", fig.width=12, fig.height=4}
+# Summarize of leaving reason
 leave_reason_counts <- leave_survey_all |>
   group_by(run_number) |>
   count(leaving_reason)
+leave_reason_counts$run_number <- as.factor(leave_reason_counts$run_number)
 
 # Define a custom color palette based on integer run numbers
 custom_colors <- c("4" = "#e66101", 
@@ -177,9 +190,7 @@ custom_colors <- c("4" = "#e66101",
                    "6" = "#b2abd2",
                    "7" = "#5e3c99") 
 
-# Ensure your run_number is treated as a factor for plotting
-leave_reason_counts$run_number <- as.factor(leave_reason_counts$run_number)
-
+# PLot stacked bar chart of leaving reason
 ggplot(leave_reason_counts, aes(x = leaving_reason, y = n, fill = run_number)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(label = ifelse(n > 5, n, "")), 
@@ -193,9 +204,9 @@ ggplot(leave_reason_counts, aes(x = leaving_reason, y = n, fill = run_number)) +
 ```
 
 
-The chart shows that time management is the primary problem making learner withdraw the course, observing from high counts of I don’t have enough time" and "The course required more time than I realized" categories. There are low number of student that withdraw the course due to skill alignment, course difficulty and course expectations, indicating the the difficulty level of this course might be generally acceptable for most of students. In addition, there are high number of students that withdraw the course from other reasons.
+The chart shows that time management is the primary problem making learner decided to withdraw the course, observing from high counts of I don’t have enough time" and "The course required more time than I realized" categories. There are low number of student that withdraw the course due to skill alignment, course difficulty and course expectations, indicating the the difficulty level of this course might be generally acceptable for most of students. In addition, there are high number of students that withdraw the course from other reasons.
 
-These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rates. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. 
+These data suggest that the number of steps in the course is an important factor influencing the withdrawal rate. Since many students encounter time management problems, increasing the number of steps in the course may contribute to higher withdrawal rate. However, since the course structure has remained unchanged after the third run and the percentage of student withdrawal consistently decrease, suggesting that the structure of this course may now be suitable for the average learner. 
 
 This report proposes three potential solutions to enhance course performance. First, providing a study plan may help students see the time required for this course and the timeline for completion more clearly. For example, students could be given an estimate of study hours per week, and the platform could then generate a personalized study plan based on this information. This would enhance students’ ability to manage their time and reduce withdrawal rate. Second, introducing a pre-test exam before enrollment could help students understand the overall content provided in this course. If a student scores high on the pre-test, it may suggest that the course is too easy for them. In contrast, if a student cannot answer all the questions provided, it may suggest that the course is too challenging for them at this time, and they may need to study some background knowledge before enrolling. Lastly, providing a expected learning outcomes to student before enrollment is one of the possible solutions. The summary of learning outcome would help student access whether the course aligns with their expectations. 
 
@@ -206,25 +217,26 @@ However, the most important factor of un-enrollment rate that could not identify
 
 # 2. Second investigation
 ## 2.1 Business Understanding
-The quality of the course is one of the key factors effect to un-enrollment. Although, the data shows the decreasing trend of student withdrawal but the number of enrollments has also declined. Therefore, the course quality should be evaluated to ensure that current course structure and learning method are suitable for majority of student.
+The quality of the course is one of the key factors affecting un-enrollment. Although the data shows a decreasing trend in student withdrawals, the number of enrollments has also declined. Therefore, evaluating course quality is essential to ensure that the current course structure and teaching methods are suitable for the majority of students.
 
-### 2.1.1 Business objectives and success criteria
-The objective of this report is to analyse the course quality by analyzing the student satisfaction. The analysis will cover overall experience ratings and satisfaction trends. Additionally, sentiment analysis will identify areas for improvement by examining both positive and negative opinions.
+### 2.1.1 Business Objectives and Success Criteria
+The objective of this report is to assess course quality by analyzing student satisfaction and experience ratings. The analysis will cover overall experience ratings and satisfaction trends. Additionally, sentiment analysis will be used to identify areas for improvement by examining both positive and negative feedback.
 
-### 2.1.2 Requirements, assumptions, and constrains
-All requirements and constraints from the first investigation (section 1.1.2) continue to apply. This investigation assumes that the experience ratings provided by students, along with sentiment analysis, can effectively address the overall satisfaction with the course and suggesting the further improvement.
+### 2.1.2 Requirements, Assumptions, and Constraints
+All requirements and constraints from the first investigation (Section 1.1.2) continue to apply. This investigation assumes that student experience ratings and sentiment analysis can effectively address course quality and provide insights for further improvement.
 
-### 2.1.3 Risk and contingencies
-The sentiment response was collected only from the last three runs, thus the findings may not fully represent student sentiments across all runs. Moreover, the accuracy of sentiment analysis depends on the quality of data. Furthermore, the accuracy of sentiment analysis depends on data quality. Therefore, if this analysis reveals that data quality is insufficient, further data collection may be necessary.
+### 2.1.3 Risks and Contingencies
+Since sentiment responses were collected only from the last three runs, the findings may not fully represent student sentiments across all runs. Additionally, the accuracy of sentiment analysis depends on data quality. Ambiguous language in the data can impact interpretation, so reviewing the actual feedback sentences is necessary to ensure that the sentiment analysis interpretations are reasonable.
 
 ## 2.2 Data Understanding
 ### 2.2.1 Initial data collection
-There are seven sentiment survey responses file that provided in this data set. However, the files from 1-4 runs are the empty files, therefore, only the files in fifth, sixth and seventh runs are able to used for analysis. 
+There are seven sentiment survey response files provided in this data set. However, the files from first to fourth run are empty. So, only the files from the fifth, sixth, and seventh runs are available for analysis.
 
 ### 2.2.2 Data exploration
 *cyber.security.n_weekly.sentiment.survey.responses* is the primary file for this analysis, where "n" represents the run number. For better understanding, the description of each column that used in this analysis are summarized in the table below.
 
 ```{r, echo=FALSE}
+# Create data frame of column description
 table_data <- data.frame(
   Column = c("id", "responded_at", "week_number", "experience_rating", "reason"),
   Description = c("Unique identifier for each student", 
@@ -233,26 +245,30 @@ table_data <- data.frame(
                   "A numeric rating given by the student",
                   "Feedback provided by the student"))
 
+# Create table for visualization
 kable(table_data, align = c("l", "l"), 
       caption = "Description of column in sentiment survey")
 ```
-Although this data set has 7 runs, there are only fifth, sixth and seventh run that have the sentiment responses. The detail of sentiment survey responses are provided in the table below.
+As mentioned, although this data set has 7 runs, there are only fifth, sixth and seventh run that have the sentiment responses. The detail of sentiment survey responses are provided in the table below.
 
 ```{r, echo = FALSE}
+# Summary of enrollment response
 enrollment_summary <- enroll_survey_all |>
   group_by(run_number) |>
   summarize(total = n(),
-            complete = sum(!is.na(fully_participated_at))
-            ,)
+            complete = sum(!is.na(fully_participated_at)),)
 
+# Summary of sentiment response
 sentiment_summary <- preprocessed_sentiment |>
   group_by(run_number) |>
   summarize(response = n_distinct(id), .groups = "drop")
 
+# Join two dataframes by running number
 sentiment_enrollment_summary <- full_join(enrollment_summary, sentiment_summary,
                                 by = c( "run_number")) |>
   mutate(response = replace_na(response, 0))
 
+# Create table for visualization
 kable(sentiment_enrollment_summary, 
       caption = "Sentiment survey summary", 
       digits = 2, align = "c",
@@ -260,12 +276,21 @@ kable(sentiment_enrollment_summary,
                     "Full Participate", 
                     "Total Responses"))
 ```
-In the fifth run, there is only one response from 22 learners who fully participated in the course. However, the table shows that the number of survey responses in the sixth and seventh runs is greater than the number of learners who completed the course, indicating that this survey includes not only students who completed the course but also those who were currently studying.
+In the fifth run, there is only one response from 22 learners who fully participated in the course. The table shows that the number of survey responses in the sixth and seventh runs is greater than the number of learners who completed the course. Also, there are no multiple response from the same learner tracking by the *id* column. Therefore, it might be assumed that this survey includes not only students who completed the course but also those who were currently studying.
+
+```{r, include = FALSE}
+# Find the ID that present more than one time in sentiment survey
+duplicate_sentiment <- preprocessed_sentiment |>
+  group_by(id, run_number) |>
+  filter(n() > 1)
+
+cat("Number of Duplicate IDs (Sentiment survey):", nrow(duplicate_sentiment), "\n")
+```
 
 ### 2.3 Data preparation
-In this investigation, `02-Combined_sentiment` serves as the primary file for pre-processing the data. Only *cyber.security.n_weekly.sentiment.survey.responses* is selected to analyze learner satisfaction. This pre-processed script is also stored in the `munge` folder and processed automatically during loading the project template. After pre-processing, the pre-processed file will be stored in the `cache` folder.
+In this investigation, `02-Combined_sentiment` serves as the primary file for pre-processing the data, which is stored in the `munge` folder and processed automatically during loading the project template. Only *cyber.security.n_weekly.sentiment.survey.responses* is selected to analyze learner satisfaction. After pre-processing, the pre-processed file will be stored in the `cache` folder.
 
-The pre-processing process start from loading all sentiment files in the `data` folder and store into one list. After that, the script will combine all files into one data frame by row. Finally, the pre-processed data frame contains 181 observations with 6 variables.
+The pre-processing process start from loading all sentiment files in the `data` folder and store into one list. After that, the script will combine all files into one data frame by row. Finally, the pre-processed data frame will be stored in `cache` folder, which reduce the computational time when reproduce the analysis. As a result, the pre-processed data frame contains 181 observations with 6 variables.
 
 ### 2.4 Modeling
 The clustered bar chart below shows the distribution of experience ratings. The data indicate that most students gave a rating of 3, the highest rating, with a few giving ratings of 2 and 1, respectively. This suggests that most students are satisfied with the course.
@@ -289,7 +314,7 @@ sentiment_summary_complete <- complete_combinations |>
 
 # Plot the data
 ggplot(sentiment_summary_complete, aes(x = factor(run_number), y = count, fill = factor(experience_rating))) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
   geom_text(aes(label = count),
             position = position_dodge(width = 0.9), vjust = -0.3, color = "black", size = 4) +
   labs(x = "Run Number",
@@ -299,7 +324,7 @@ ggplot(sentiment_summary_complete, aes(x = factor(run_number), y = count, fill =
   scale_fill_manual(values = c("1" = "#efedf5", "2" = "#bcbddc", "3" = "#756bb1"))
 ```
 
-For the student feedback analysis, this report uses the syuzhet library. This library helps categorize words in each sentence into sentiments, including negative and positive. Additionally, sentences that contain neither negative nor positive sentiments are identified as neutral. However, since there is no student feedback from the fifth run, this analysis is based solely on the sixth and seventh runs. A summary of the sentiment analysis is illustrated below.
+For the student feedback analysis, this report uses the `syuzhet` library. This library helps categorize words in each sentence into sentiments, including negative and positive words. Additionally, sentences that contain neither negative nor positive sentiments are identified as neutral. However, since there is no student feedback from the fifth run, this analysis is based solely on the sixth and seventh runs. A summary of the sentiment analysis is illustrated below.
 
 ```{r, echo=FALSE, fig.width=12, fig.height=3, fig.align='center', fig.cap="Sentiment analysis by experience rating"}
 # Initialize an empty data frame
@@ -332,38 +357,73 @@ sentiment_by_experience <- sentiment_by_experience |>
   ungroup()
 
 # Plot the results
-facet_labels <- c(
-  "1" = "Rating: 1",
-  "2" = "Rating: 2",
-  "3" = "Rating: 3"
-)
-
+facet_labels <- c("1" = "Rating: 1", "2" = "Rating: 2", "3" = "Rating: 3")
 ggplot(sentiment_by_experience, aes(x = sentiment, y = count, fill = sentiment)) +
   geom_bar(stat = "identity", color = "black") +
   facet_wrap(~ experience_rating, labeller = as_labeller(facet_labels)) +
-  geom_text(aes(label = count), position = position_dodge(width = 0.9), vjust = -0.3, color = "black", size = 4) +
+  geom_text(aes(label = count), position = position_dodge(width = 0.9),
+            vjust = -0.3, color = "black", size = 4) +
   labs(y = "Count", x = "Sentiment") +
   scale_fill_manual(values = c("negative" = "#fc8d59", "positive" = "#ffffbf", "neutral" = "#91bfdb")) +
-  theme(strip.text = element_text(size = 12)) +
-  ylim(0,150)
+  theme(strip.text = element_text(size = 12)) + ylim(0,150)
 
 ```
 
-The clustered bar plot shows the count of each sentiment, segmented by experience rating. The data indicates that most students provided neutral feedback on the course, and positive comments tend to increase with higher rating scores. However, the negative feedback also presented in the experience rating 2 and 3, which could reflect the possible improvement points of this course. The full feedback that contain negative word are shown in the table below.
+The clustered bar plot shows the count of each sentiment, segmented by experience rating. The data indicates that most students provided neutral feedback on the course, with positive comments increasing alongside higher rating scores. However, negative feedback also appears in experience ratings 2 and 3, which might be a potential areas for improvement. Full feedback containing negative words is shown in the table below.
 
 ```{r, echo = FALSE}
-# Filter for negative feedback only
-# Calculate sentiment score
+# Calculate sentiment score of negative feedback only
 comments <- iconv(preprocessed_sentiment$reason, to = 'utf-8')
 sentiment_result <- get_nrc_sentiment(comments)
-negative_feedback <- preprocessed_sentiment[sentiment_result$negative > 0, "reason"]
+negative_feedback <- preprocessed_sentiment[(sentiment_result$negative > 0), "reason"]
+
+negative_feedback_df <- data.frame(
+  Number = seq_len(nrow(negative_feedback)), # Row numbers
+  Comment = negative_feedback)
 
 # Display the negative feedback sentences
-kable(negative_feedback, 
-      col.names = "Negative Feedback", 
-      align = "l", 
-      caption = "Feedback contains negative words")
+kable(negative_feedback_df, 
+      col.names = c("Number", "Negative Feedback"), 
+      align = c("c","l"), 
+      caption = "Feedback contains negative words") |>
+  kable_styling(full_width = FALSE) |>
+  column_spec(2, width = "40em") # Adjust width of feedback column
 ```
+Overall, although some feedback contains negative words, positive words are also present within the same responses. The feedback highlights issues related to time management and course expectations, which align with the reasons for student withdrawal discussed in section 1.4. This finding supports that improving of these points could result in lower un-enrollment rate and increasing student stratification which indicate to course quality. Possible solutions regarding time allocation and managing expectations are presented in section 1.4. Additionally, learners appreciate that the course content is engaging and raises awareness of cyber security through thought-provoking discussions and practical solutions. However, a minor error in the course material was mentioned by student, which could be corrected and in future course runs to improve overall quality.
+
+Referring to the clustered bar chart, there are many feedback comments containing positive words, which may not all be shown in this report. The table below highlights selected responses with more than one positive word per sentence to review the feedback from the positive sentiment group and address possible improvement of course.
+
+```{r, echo = FALSE}
+# Calculate sentiment score of positive feedback only
+comments <- iconv(preprocessed_sentiment$reason, to = 'utf-8')
+sentiment_result <- get_nrc_sentiment(comments)
+positive_feedback <- preprocessed_sentiment[(sentiment_result$negative == 0) &
+                                              (sentiment_result$positive > 1), "reason"]
+
+# Convert the long text into a data frame and add row numbers
+feedback_df <- data.frame(
+  Number = seq_len(nrow(positive_feedback)),
+  Comment = positive_feedback
+)
+
+# Create the table for visualization
+kable(feedback_df, align = c("c", "l"),
+      col.names = c("Number", "Positive Feedback"),
+      caption = "Feedback contains positive words") |>
+  kable_styling(full_width = FALSE) |>
+  column_spec(2, width = "40em")
+```
+
+There are three main points mentioned in the positive feedback group. Firstly, this course is easy for students to enroll and access the course. Furthermore, students found the information provided to be interesting and up-to-date, exceeding their expectations. Additionally, it includes many useful practical materials that learners can easily follow to improve their skills.
+
+In summary, the data shows that most students gave the highest experience rating across all runs. In addition, findings from the sentiment analysis indicate that time management and student expectations are not only reasons for student un-enrollment but also remain issues for learner, supporting that the purpose solution in the first investigation could be enhance the course and reducing the number of student withdrawal. Furthermore, the positive feedback suggesting that current course structure such as contents, materials and activities are suitable for most of student as same as the analysis result from the first investigation. 
+
+In order to improve the course quality, the contents' structure of course could not be changed in the next run but the contents should be reviewed and updated to deliver interesting content to student. 
+
+## 2.5 Evaluation
+The analysis results indicate that most students are satisfied with the course content, highlighting the high quality of the current course structure. Additionally, the data reveals that some of the issues contributing to student withdrawals align with negative feedback from learners, suggesting that the solutions proposed in section 1.4 could improve student satisfaction. This investigation also offers potential strategies for further enhancing course quality. Therefore, the analysis results can effectively address the business question.
+
+
 
 
 
