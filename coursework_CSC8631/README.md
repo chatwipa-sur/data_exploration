@@ -37,8 +37,8 @@ coursework_CSC8631/
 
 ## How to reproduce the analysis result
 1. Download the "coursework_CSC8631" zip file and unzip the file
-2. Open the project folder though R studio
-3. run `renv::restore()` to install required libraries
-4. open `AnalysisReport.RMD` and select `knit`
+2. Open the `coursework_CSC8631.Rproj` though R studio
+3. Run `renv::restore()` to install required libraries
+4. Open `AnalysisReport.RMD` and select `knit`
 
 
