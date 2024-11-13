@@ -1,39 +1,44 @@
-# coursework_CSC8631
+## Project title 
+Analysis of "Cyber Security" Course Provided by Newcastle University
 
-Welcome to ProjectTemplate!
+## Brief project overview
+- This project primarily focuses on how to improve the course to reduce student unenrollment and enhance course quality.
+- The dataset in this analysis comes from the “Cyber Security: Safety At Home, Online, and in Life” course created by Newcastle University, which was publicly available and collected data through `FutureLearn`, a virtual learning provider.
 
-This file introduces you to ProjectTemplate, but you should eventually replace
-the contents of this file with an introduction to your project. People who
-work with your data in the future will thank you for it, including your future
-self.
+## Author
+Chatwipa Surapat
 
-ProjectTemplate is an R package that helps you organize your statistical
-analysis projects. Since you're reading this file, we'll assume that you've
-already called `create.project()` to set up this project and all of its
-contents.
+## Repository Overview
+- The repository below contains all of the main files used in this project.
 
-To load your new project, you'll first need to `setwd()` into the directory
-where this README file is located. Then you need to run the following two
-lines of R code:
+```
+coursework_CSC8631/
+|-- README.md
+|-- reports
+|   |-- AnalysisReport.pdf
+|   |-- AnalysisReport.html
+|   |-- AnalysisReport.RMD
+|
+|-- data
+|   |-- README.txt
+|   |-- cyber-security-1_archetype-survey-responses.csv
+|   |-- cyber-security-1_enrolments.csv
+|   .
+|   .
+|   .
+|   
+|-- munge
+|   |-- 01-Combined_leave.R
+|   |-- 02-Combined_sentiment.R
+|
+|-- renv.lock
+|-- git_log.txt
+```
 
-	library('ProjectTemplate')
-	load.project()
+## How to reproduce the analysis result
+1. Download the "coursework_CSC8631" zip file and unzip the file
+2. Open the project folder though R studio
+3. run `renv::restore()` to install required libraries
+4. open `AnalysisReport.RMD` and select `knit`
 
-After you enter the second line of code, you'll see a series of automated
-messages as ProjectTemplate goes about doing its work. This work involves:
-* Reading in the global configuration file contained in `config`.
-* Loading any R packages you listed in the configuration file.
-* Reading in any datasets stored in `data` or `cache`.
-* Preprocessing your data using the files in the `munge` directory.
 
-Once that's done, you can execute any code you'd like. For every analysis
-you create, we'd recommend putting a separate file in the `src` directory.
-If the files start with the two lines mentioned above:
-
-	library('ProjectTemplate')
-	load.project()
-
-You'll have access to all of your data, already fully preprocessed, and
-all of the libraries you want to use.
-
-For more details about ProjectTemplate, see http://projecttemplate.net
