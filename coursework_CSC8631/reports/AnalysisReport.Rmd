@@ -37,7 +37,7 @@ As mentioned, student survey is the primary source that used for analysis, which
 
 ## 1.2 Data Understanding
 ### 1.2.1 Initial data collection
-There are seven different runs of the online course, resulting in seven distinct sets of survey responses. The types of survey responses vary across each run. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also recorded and included in the data set. 
+There are seven different runs of the online course, resulting in seven distinct sets of response files. The data collection consists of two types including data collected by automatic system recording and data collected by user survey. In the first run, there were only five summary files including archetype, enrollment, leaving survey, quiz response, activity log and sentiment survey. In the second run, a team member survey was introduced. After that, video-watching statistics were also recorded and included in the data set. 
 
 ### 1.2.2 Data exploration
 The course structure was provided in *.pdf* format. There are three sections in this course, including exploring personal privacy online, online payment security, and future home security. However, there have been some changes to the course structure across runs, which might be one of the factors affecting un-enrollment.
@@ -421,9 +421,8 @@ In summary, the data shows that most students gave the highest experience rating
 In order to improve the course quality, the contents' structure of course could not be changed in the next run but the contents should be reviewed and updated to deliver interesting content to student. 
 
 ## 2.5 Evaluation
-The analysis results indicate that most students are satisfied with the course content, highlighting the high quality of the current course structure. Additionally, the data reveals that some of the issues contributing to student withdrawals align with negative feedback from learners, suggesting that the solutions proposed in section 1.4 could improve student satisfaction. This investigation also offers potential strategies for further enhancing course quality. Therefore, the analysis results can effectively address the business question.
+The analysis results indicate that most students are satisfied with the course content, highlighting the high quality of the current course structure. Additionally, the data reveals that some of the issues contributing to student withdrawals align with negative feedback from learners, suggesting that the solutions proposed in section 1.4 could improve student satisfaction. This investigation also offers potential strategies for further enhancing course quality. Therefore, the analysis results can effectively address the business questions.
 
-
-
-
+# 3. Deployment
+The deliverables of this investigation consist of three items: source code, an analysis report, and a video presentation. The source code was compressed into a zip file, which contains all folders created by `ProjectTemplate`. The `README` file includes information on how to reproduce the analysis results through the source code. The analysis report is stored in the `report` folder. Additionally, the `renv` log file is also provided in the folder, which includes the library versions used in this project to ensure reproducibility. For the presentation, the presentation slides and video are compressed into a zip file. The presentation is a summary of this analysis, containing information about the methodology, data processing steps, and result interpretation.
 
