@@ -37,7 +37,7 @@ coursework_CSC8631/
 
 ## How to reproduce the analysis result
 1. Download the "coursework_CSC8631" zip file and unzip the file
-2. Open the `coursework_CSC8631.Rproj` though R studio
+2. Open the `coursework_CSC8631.Rproj` through R studio
 3. Run `install.packages("renv")` in the console
 4. Run `renv::activate()` in the console to restart the R session
 5. Run `renv::restore()` in the console to match the version of library to the `renv` lock file
